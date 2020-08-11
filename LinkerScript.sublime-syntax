@@ -5,10 +5,12 @@ file_extensions: [ld]
 scope: source.linker
 
 variables:
-  num_suffix: '[KM]'
+  num_suffix: '[kKM]'
 
 contexts:
   main:
+    - include: strings
+    - include: memory_modifiers
     - include: comments
     - include: oct_literals
     - include: int_literals
@@ -56,7 +58,9 @@ contexts:
                   |MEMORY
                   |NEXT
                   |ORIGIN
+                  |OUTPUT_ARCH
                   |OUTPUT_FORMAT
+                  |PROVIDE
                   |PROVIDE_HIDDEN
                   |QUAD
                   |SECTIONS
@@ -72,7 +76,7 @@ contexts:
               |
                 \B\.[A-Za-z_\.0-9\-]+
               )'
-      scope: variable.other.linker
+      scope: entity.name
     - match: '"'
       push:
         - meta_scope: variable.other.linker
@@ -81,6 +85,17 @@ contexts:
         - match: \n
           scope: invalid.illegal.linker
           pop: true
+
+  strings:
+    - match: '"'
+      push:
+        - meta_scope: string.quoted.double.linker
+        - match: '"'
+          pop: true
+
+  memory_modifiers:
+  - match: \([rwxail!]*[RWXAIL!]*\)
+    scope: storage.type
 
   location_counter:
     - match: \B\.\B
